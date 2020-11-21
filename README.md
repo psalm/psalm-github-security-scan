@@ -1,6 +1,6 @@
-# Psalm Security Scan Github action
+# Psalm Github Security Scan
 
-Run Psalm as a github action.
+Run Psalm’s taint analysis as a github action. This is a streamlined version of https://github.com/psalm/psalm-github-actions.
 
 ```yaml
 name: Static analysis
