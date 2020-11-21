@@ -9,7 +9,7 @@ branding:
 
 name: 'Psalm – Security Scanner for PHP'
 
-description: 'Psalm is an open-source static analysis tool for PHP that can find security vulnerabilities in your codebase.'
+description: 'Find security vulnerabilities in your PHP codebase with Psalm, a free and open-source tool created by Vimeo.'
 
 inputs:
   report_file:
