@@ -3,7 +3,7 @@
 Run [Psalm’s Security Analysis](https://psalm.dev/docs/security_analysis/) as a Github action (a more general version [can be found here](https://github.com/psalm/psalm-github-actions)).
 
 ```yaml
-name: Static analysis
+name: Psalm Security Scan
 
 on: [push, pull_request]
 
