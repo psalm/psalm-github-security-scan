@@ -1,14 +1,9 @@
 #!/bin/sh -l
 set -e
 
-TAINT_ANALYSIS=""
-if [ "$INPUT_SECURITY_ANALYSIS" = "true" ]; then
-    TAINT_ANALYSIS="--taint-analysis"
-fi
-
-REPORT=""
+REPORT_FILE="results.sarif"
 if [ ! -z "$INPUT_REPORT_FILE" ]; then
-    REPORT="--report=$INPUT_REPORT_FILE"
+    REPORT_FILE="$INPUT_REPORT_FILE"
 fi
 
 if test -f "composer.json"; then
@@ -31,4 +26,4 @@ else
 fi
 
 /composer/vendor/bin/psalm --version
-/composer/vendor/bin/psalm --output-format=github $TAINT_ANALYSIS $REPORT $*
+/composer/vendor/bin/psalm --output-format=github --taint-analysis --report=$REPORT_FILE $*
