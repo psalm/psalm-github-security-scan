@@ -32,17 +32,6 @@ jobs:
 
           sed -i -re "s/require vimeo\/psalm/require vimeo\/psalm:$last/" Dockerfile
           cat Dockerfile
-          
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: ./docker
-          file: ./docker/Dockerfile
-          build-args: |
-            PSALM_VERSION=dev-master#${{ github.sha }}
-          push: true
-          tags: ghcr.io/psalm/psalm-security-scan:nightly
 
       - name: Build images
         run: docker build -t ghcr.io/psalm/psalm-security-scan:${{ steps.fetch_version.outputs.last }} .
