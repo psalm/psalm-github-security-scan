@@ -5,7 +5,7 @@ LABEL "com.github.actions.description"="A static analysis tool for finding error
 LABEL "com.github.actions.icon"="check"
 LABEL "com.github.actions.color"="blue"
 
-LABEL "repository"="http://github.com/psalm/psalm-github-actions"
+LABEL "repository"="http://github.com/psalm/psalm-github-security-scan"
 LABEL "homepage"="http://github.com/actions"
 LABEL "maintainer"="Matt Brown <github@muglug.com>"
 
