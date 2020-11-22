@@ -2,7 +2,7 @@ name: Watch
 
 on:
   schedule:
-    - cron: '30 */4 * * *'
+    - cron: '45 * * * *'
 
 jobs:
   docker:
