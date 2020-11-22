@@ -7,28 +7,16 @@ branding:
   icon: 'check'
   color: 'blue'
 
-description: 'Run Psalm via GitHub Actions'
+name: 'Psalm – Security Scanner for PHP'
 
-name: 'Psalm – Static Analysis for PHP'
+description: 'Find security vulnerabilities in your PHP codebase with Psalm, a free and open-source tool created by Vimeo.'
 
 inputs:
-  security_analysis:
-    required: false
-    default: false
-    description: 'Whether or not to use Psalm’s security analysis'
   report_file:
     required: false
-    default: ''
+    default: 'results.sarif'
     description: 'File for Psalm’s output'
-  composer_require_dev:
-    required: false
-    default: false
-    description: 'Whether or not Composer installs dev packages'
-  composer_ignore_platform_reqs:
-    required: false
-    default: false
-    description: 'Whether or not the --ignore-platform-reqs flag is passed to Composer'
 
 runs:
   using: 'docker'
-  image: 'docker://vimeo/psalm-github-actions'
+  image: 'docker://ghcr.io/psalm/psalm-security-scan'

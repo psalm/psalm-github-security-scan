@@ -1,0 +1,25 @@
+# For most projects this workflow file will not need changed at all - you
+# can just commit it to your repository.
+#
+# If you want to run Psalm *without* security scanning you should instead
+# use this GitHub Action: https://github.com/psalm/psalm-github-actions
+
+name: Psalm Security Scan
+
+on: [push, pull_request]
+
+jobs:
+  psalm-security-scan:
+    name: Psalm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Psalm Security Scan
+        uses: docker://ghcr.io/psalm/psalm-security-scan
+        
+      - name: Import Security Analysis results into GitHub Security Code Scanning
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: results.sarif
