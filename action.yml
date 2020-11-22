@@ -19,4 +19,4 @@ inputs:
 
 runs:
   using: 'docker'
-  image: 'docker://vimeo/psalm-github-security-scan'
+  image: 'docker://ghcr.io/psalm/psalm-security-scan'
