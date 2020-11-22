@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Psalm Security Scan
-        uses: docker://vimeo/psalm-github-security-scan
+        uses: docker://ghcr.io/psalm/psalm-security-scan
         
       - name: Upload Security Analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v1
@@ -29,6 +29,6 @@ jobs:
 You can also specify a version.
 
 ```diff
--        uses: docker://vimeo/psalm-github-security-scan
-+        uses: docker://vimeo/psalm-github-security-scan:4.2.0
+-        uses: docker://ghcr.io/psalm/psalm-security-scan
++        uses: docker://ghcr.io/psalm/psalm-security-scan:4.2.1
 ```
