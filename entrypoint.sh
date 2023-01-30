@@ -6,6 +6,7 @@ if [ ! -z "$INPUT_REPORT_FILE" ]; then
     REPORT_FILE="$INPUT_REPORT_FILE"
 fi
 
+ROOT=$PWD
 if [ ! -z "$INPUT_WORKING_DIR" ]; then
     cd "$INPUT_WORKING_DIR"
 fi
@@ -23,3 +24,5 @@ fi
 /composer/vendor/bin/psalm --output-format=github --taint-analysis --report=$REPORT_FILE $*
 
 echo "report file saved to $PWD/$REPORT_FILE"
+
+cd $ROOT
