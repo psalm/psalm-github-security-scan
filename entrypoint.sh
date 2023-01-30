@@ -22,5 +22,4 @@ fi
 /composer/vendor/bin/psalm --version
 /composer/vendor/bin/psalm --output-format=github --taint-analysis --report=$REPORT_FILE $*
 
-echo "$REPORT_FILE saved to $PWD"
-ls -al
+echo "report file saved to $PWD/$REPORT_FILE"
