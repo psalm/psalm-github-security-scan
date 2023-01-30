@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Psalm Security Scan
-        uses: docker://ghcr.io/psalm/psalm-security-scan
+        uses: docker://ghcr.io/austenstone/psalm-security-scan
         
       - name: Upload Security Analysis results to GitHub
         uses: github/codeql-action/upload-sarif@v1
