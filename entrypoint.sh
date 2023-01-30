@@ -6,6 +6,10 @@ if [ ! -z "$INPUT_REPORT_FILE" ]; then
     REPORT_FILE="$INPUT_REPORT_FILE"
 fi
 
+if [ ! -z "$INPUT_WORKING_DIR" ]; then
+    cd "$INPUT_WORKING_DIR"
+fi
+
 if test -f "composer.json"; then
     COMPOSER_COMMAND="composer install --no-scripts --no-progress"
     echo "::group::$COMPOSER_COMMAND"
