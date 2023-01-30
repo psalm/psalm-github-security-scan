@@ -36,9 +36,9 @@ jobs:
           cat Dockerfile
 
       - name: Build images
-        run: docker build -t ghcr.io/psalm/psalm-security-scan:${{ steps.fetch_version.outputs.last }} -t ghcr.io/psalm/psalm-security-scan:latest .
+        run: docker build -t ghcr.io/austenstone/psalm-security-scan:${{ steps.fetch_version.outputs.last }} -t ghcr.io/austenstone/psalm-security-scan:latest .
 
       - name: Publish
         run: |
-          docker push ghcr.io/psalm/psalm-security-scan:${{ steps.fetch_version.outputs.last }}
-          docker push ghcr.io/psalm/psalm-security-scan:latest
+          docker push ghcr.io/austenstone/psalm-security-scan:${{ steps.fetch_version.outputs.last }}
+          docker push ghcr.io/austenstone/psalm-security-scan:latest
