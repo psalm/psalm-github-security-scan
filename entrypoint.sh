@@ -23,6 +23,6 @@ fi
 /composer/vendor/bin/psalm --version
 /composer/vendor/bin/psalm --output-format=github --taint-analysis --report=$REPORT_FILE $*
 
-echo "report file saved to $PWD/$REPORT_FILE"
+echo "sarif file saved to $PWD/$REPORT_FILE"
 
 cd $ROOT
