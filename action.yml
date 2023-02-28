@@ -2,21 +2,16 @@
 # https://help.github.com/en/articles/metadata-syntax-for-github-actions
 
 author: 'muglug'
-
 branding:
   icon: 'check'
   color: 'blue'
-
 name: 'Psalm – Security Scanner for PHP'
-
 description: 'Find security vulnerabilities in your PHP codebase with Psalm, a free and open-source tool created by Vimeo.'
-
 inputs:
   report_file:
     required: false
     default: 'results.sarif'
     description: 'File for Psalm’s output'
-
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/psalm/psalm-security-scan'
+  image: 'docker://ghcr.io/psalm/psalm-security-scan:5.7.7'
