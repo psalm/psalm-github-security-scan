@@ -11,7 +11,7 @@ jobs:
     name: Push tagged docker image
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
@@ -45,3 +45,13 @@ jobs:
         run: |
           docker push ghcr.io/psalm/psalm-security-scan:${{ steps.fetch_version.outputs.last }}
           docker push ghcr.io/psalm/psalm-security-scan:latest
+
+      - name: Update action.yml
+        run : |
+          git config --global user.name "psalmbot"
+          git config --global user.email "bot@noreply.psalm.dev"
+          yq -i ".runs.image = \"docker://ghcr.io/psalm/psalm-security-scan:${{ steps.fetch_version.outputs.last }}\"" action.yml
+          #  Push commit when a file change has been made, skip if the commit would be empty
+          git commit -m "Add newer psalm docker image version ${{ steps.fetch_version.outputs.last }}" action.yml &&
+          git push origin master ||
+          true
