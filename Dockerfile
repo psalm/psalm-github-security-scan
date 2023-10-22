@@ -1,4 +1,4 @@
-FROM php:7.4-alpine
+FROM php:8.2-alpine
 
 LABEL "com.github.actions.name"="Psalm"
 LABEL "com.github.actions.description"="A static analysis tool for finding errors in PHP applications"
@@ -15,7 +15,7 @@ LABEL "maintainer"="Matt Brown <github@muglug.com>"
 
 RUN apk add --no-cache tini git
 
-COPY --from=composer:2.2 /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2.6.5 /usr/bin/composer /usr/bin/composer
 
 RUN COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_HOME="/composer" \
