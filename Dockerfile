@@ -21,6 +21,11 @@ RUN COMPOSER_ALLOW_SUPERUSER=1 \
     COMPOSER_HOME="/composer" \
     composer global config minimum-stability dev
 
+# Install php extensions, by docker-php-extension-installer
+# Required for some composer packages to be pre-installed
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions amqp gd curl simplexml dom xml redis intl opcache apcu pcntl
+
 # This line invalidates cache when master branch change
 ADD https://github.com/vimeo/psalm/commits/master.atom /dev/null
 
