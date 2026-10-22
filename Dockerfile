@@ -1,4 +1,4 @@
-FROM php:8.2-alpine
+FROM php:8.2.35-alpine
 
 LABEL "com.github.actions.name"="Psalm"
 LABEL "com.github.actions.description"="A static analysis tool for finding errors in PHP applications"
