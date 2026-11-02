@@ -28,14 +28,16 @@ jobs:
 
 ## Specify Psalm version
 
-You can also specify a version, including the latest alpha/beta/rc. `latest` is the latest stable release.
+You can also specify a version, including the latest alpha/beta/rc. `latest` is the latest stable release (Psalm 7).
 
 ```diff
 -        uses: docker://ghcr.io/psalm/psalm-security-scan
-+        uses: docker://ghcr.io/psalm/psalm-security-scan:6.20.5
++        uses: docker://ghcr.io/psalm/psalm-security-scan:7.0.0
 ```
 
+To stay on Psalm 6:
+
 ```diff
 -        uses: docker://ghcr.io/psalm/psalm-security-scan
-+        uses: docker://ghcr.io/psalm/psalm-security-scan:7.0.0-rc27
++        uses: docker://ghcr.io/psalm/psalm-security-scan:6.20.6
 ```
