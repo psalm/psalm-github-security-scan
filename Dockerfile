@@ -1,45 +1,10 @@
-FROM php:8.2-alpine
+ARG PSALM_VERSION=latest
 
-LABEL "com.github.actions.name"="Psalm"
-LABEL "com.github.actions.description"="A static analysis tool for finding errors in PHP applications"
-LABEL "com.github.actions.icon"="check"
-LABEL "com.github.actions.color"="blue"
+# The general Psalm action (https://github.com/psalm/psalm-github-actions) with the security scan's defaults
+FROM ghcr.io/psalm/psalm-github-actions:${PSALM_VERSION}
 
-LABEL "repository"="http://github.com/psalm/psalm-github-security-scan"
-LABEL "homepage"="http://github.com/actions"
-LABEL "maintainer"="Matt Brown <github@muglug.com>"
+LABEL "repository"="https://github.com/psalm/psalm-github-security-scan"
 
-# Code borrowed from mickaelandrieu/psalm-ga which in turn borrowed from phpqa/psalm
-
-# Install Tini - https://github.com/krallin/tini
-
-RUN apk add --no-cache tini git
-
-COPY --from=composer:2.6.5 /usr/bin/composer /usr/bin/composer
-
-RUN COMPOSER_ALLOW_SUPERUSER=1 \
-    COMPOSER_HOME="/composer" \
-    composer global config minimum-stability dev
-
-# This line invalidates cache when master branch change
-ADD https://github.com/vimeo/psalm/commits/master.atom /dev/null
-
-RUN COMPOSER_ALLOW_SUPERUSER=1 \
-    COMPOSER_HOME="/composer" \
-    composer global require vimeo/psalm --prefer-dist --no-progress --dev
-
-ENV PATH /composer/vendor/bin:${PATH}
-
-# Satisfy Psalm's quest for a composer autoloader (with a symlink that disappears once a volume is mounted at /app)
-
-RUN mkdir /app && ln -s /composer/vendor/ /app/vendor
-
-# Add entrypoint script
-
-COPY ./entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
-# Package container
-
-WORKDIR "/app"
-ENTRYPOINT ["/entrypoint.sh"]
+ENV INPUT_SECURITY_ANALYSIS=true \
+    INPUT_COMPOSER_REQUIRE_DEV=true \
+    INPUT_REPORT_FILE=results.sarif

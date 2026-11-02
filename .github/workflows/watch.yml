@@ -1,8 +1,15 @@
 name: Watch
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Psalm version to (re)build, e.g. 6.20.0 or 7.0.0-rc27 (defaults to the latest stable release and the newest prerelease)'
+        required: false
+        default: ''
+  # after psalm/psalm-github-actions has published the images this one builds on
   schedule:
-    - cron: '30 */4 * * *'
+    - cron: '50 */4 * * *'
   push:
     branches: ['master']
 
@@ -20,38 +27,100 @@ jobs:
         with:
           ref: master
 
-      - name: Login to ghcr
+      - name: Find Psalm versions
+        id: version
+        env:
+          REQUESTED: ${{ inputs.version }}
+        run: |
+          # the latest stable release, plus the newest alpha/beta/rc when it's newer
+          read -r latest prerelease <<EOF
+          $(curl -sf 'https://repo.packagist.org/p2/vimeo/psalm.json' | jq -r '.packages["vimeo/psalm"][].version' | php -r '
+              $all = array_filter(array_map("trim", file("php://stdin")), fn($v) => preg_match("/^\d+\.\d+\.\d+(-(alpha|beta|rc)\d+)?$/", $v));
+              usort($all, "version_compare");
+              $stable = array_values(array_filter($all, fn($v) => !str_contains($v, "-")));
+              $latest = end($stable);
+              $newest = end($all);
+              echo $latest, " ", $newest !== $latest && version_compare($newest, $latest, ">") ? $newest : "", "\n";
+          ')
+          EOF
+          if ! echo "$latest" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::Could not determine the latest Psalm version from Packagist (got '$latest')"
+            exit 1
+          fi
+          echo "Latest Psalm version is $latest${prerelease:+, latest prerelease is $prerelease}"
+
+          if [ -n "$REQUESTED" ]; then
+            if ! echo "$REQUESTED" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)[0-9]+)?$'; then
+              echo "::error::Invalid Psalm version '$REQUESTED'"
+              exit 1
+            fi
+            candidates=$REQUESTED
+          else
+            candidates="$latest $prerelease"
+          fi
+
+          versions=""
+          for version in $candidates; do
+            if ! docker manifest inspect "ghcr.io/psalm/psalm-github-actions:$version" > /dev/null 2>&1; then
+              if [ -n "$REQUESTED" ]; then
+                echo "::error::Base image ghcr.io/psalm/psalm-github-actions:$version does not exist"
+                exit 1
+              fi
+              echo "::warning::Base image ghcr.io/psalm/psalm-github-actions:$version is not published yet, skipping"
+              continue
+            fi
+            versions="$versions $version"
+          done
+
+          echo "Building Psalm$versions"
+          echo "versions=$versions" >> $GITHUB_OUTPUT
+          echo "latest=$latest" >> $GITHUB_OUTPUT
+
+      - name: Docker login
+        if: steps.version.outputs.versions
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update Dockerfile with latest version
-        id: fetch_version
+      - name: Build, check and publish images
+        if: steps.version.outputs.versions
+        env:
+          VERSIONS: ${{ steps.version.outputs.versions }}
+          LATEST: ${{ steps.version.outputs.latest }}
         run: |
-          last=$(curl -s https://packagist.org/packages/vimeo/psalm.json|jq '[.package.versions[]|select(.version|test("^\\d+\\.\\d+\\.\\d+$"))|.version]|max_by(.|[splits("[.]")]|map(tonumber))')
-          last=$(echo $last | tr -d '"')
-          echo "Last Psalm version is $last"
-          echo "last=$last" >> $GITHUB_OUTPUT
+          for version in $VERSIONS; do
+            image=ghcr.io/psalm/psalm-security-scan:$version
+            docker build --pull --build-arg PSALM_VERSION=$version -t $image .
 
-          sed -i -re "s/require vimeo\/psalm/require vimeo\/psalm:$last/" Dockerfile
-          cat Dockerfile
+            actual=$(docker run --rm --entrypoint /composer/vendor/bin/psalm $image --version)
+            echo "$actual"
+            case "$actual" in
+              "Psalm $version@"*) ;;
+              *)
+                echo "::error::Image tagged $version contains '$actual'"
+                exit 1
+                ;;
+            esac
 
-      - name: Build images
-        run: docker build -t ghcr.io/psalm/psalm-security-scan:${{ steps.fetch_version.outputs.last }} -t ghcr.io/psalm/psalm-security-scan:latest .
+            docker push $image
+            # prereleases never become latest
+            if [ "$version" = "$LATEST" ]; then
+              docker tag $image ghcr.io/psalm/psalm-security-scan:latest
+              docker push ghcr.io/psalm/psalm-security-scan:latest
+            fi
+          done
 
-      - name: Publish
+      - name: Point action.yml to the latest stable image
+        if: contains(format(' {0} ', steps.version.outputs.versions), format(' {0} ', steps.version.outputs.latest))
+        env:
+          LATEST: ${{ steps.version.outputs.latest }}
         run: |
-          docker push ghcr.io/psalm/psalm-security-scan:${{ steps.fetch_version.outputs.last }}
-          docker push ghcr.io/psalm/psalm-security-scan:latest
-
-      - name: Update action.yml
-        run : |
           git config --global user.name "psalmbot"
           git config --global user.email "bot@noreply.psalm.dev"
-          yq -i ".runs.image = \"docker://ghcr.io/psalm/psalm-security-scan:${{ steps.fetch_version.outputs.last }}\"" action.yml
-          #  Push commit when a file change has been made, skip if the commit would be empty
-          git commit -m "Add newer psalm docker image version ${{ steps.fetch_version.outputs.last }}" action.yml &&
+          yq -i ".runs.image = \"docker://ghcr.io/psalm/psalm-security-scan:$LATEST\"" action.yml
+          # Push commit when a file change has been made, skip if the commit would be empty
+          git commit -m "Add newer psalm docker image version $LATEST" action.yml &&
           git push origin master ||
           true
