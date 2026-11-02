@@ -14,4 +14,4 @@ inputs:
     description: 'File for Psalm’s output'
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/psalm/psalm-security-scan:6.20.6'
+  image: 'docker://ghcr.io/psalm/psalm-security-scan:7.0.0'
